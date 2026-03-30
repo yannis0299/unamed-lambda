@@ -1,4 +1,4 @@
-#include "tu.h"
+#include "translation_unit.h"
 
 #include "arena.h"
 #include "prelude.h"
@@ -27,16 +27,10 @@ TU *tu_create_from_file(Arena *arena, const char *filename) {
     str_append_cstr(tu->contents, (u8 *)chunk, amount);
   }
 
-  if (feof(fp)) { // Error reading file
-    fclose(fp);
-    return tu;
-  } else if (ferror(fp)) {
+  if (!feof(fp) || ferror(fp)) { // Error reading file
     eyre_bail("TU: Error while reading file: %s [%d]", filename, ferror(fp));
-    fclose(fp);
-    return NULL;
-  } else {
-    eyre_bail("TU: Undefined error while reading file: %s", filename);
-    fclose(fp);
-    return NULL;
   }
+  fclose(fp);
+
+  return tu;
 }

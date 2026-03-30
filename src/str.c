@@ -21,7 +21,8 @@ Str *str_create_from(Arena *arena, const char *src) {
 
   len = strlen(src);
   str = str_create(arena, len + 1);
-  strcpy((char *)str->ptr, src);
+  strncpy((char *)str->ptr, src, len);
+  str->len += len;
   str->ptr[str->len++] = '\0';
 
   return str;
