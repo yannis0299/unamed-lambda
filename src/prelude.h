@@ -8,7 +8,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* Generic type-redefinition */
 typedef size_t usize;
+typedef ptrdiff_t isize;
 typedef unsigned char u8;
 typedef char i8;
 typedef int16_t i16;
@@ -18,15 +20,33 @@ typedef uint32_t u32;
 typedef int16_t i16;
 typedef uint16_t u16;
 
+/* Helpful macros */
+#define loop for (;;)
+
+#define whereami()                                                             \
+  do {                                                                         \
+    printf("I am here %s:%d \n", __FILE__, __LINE__);                          \
+    fflush(stdout);                                                            \
+  } while (0);
+
 /* Eyre manipulation */
 #define EYRE_MAX_MESSAGE_LENGTH 2048
 
 #define eyre(fmt, ...)                                                         \
   (eyre_eyre(__FILE__, __LINE__, fmt __VA_OPT__(, ) __VA_ARGS__))
 
+#define eyre_bail(fmt, ...)                                                    \
+  ((PtrResult){.err = eyre(fmt __VA_OPT__(, ) __VA_ARGS__)})
+
+#define eyre_ok(ptr) ((PtrResult){.ok = ptr})
+
+#define eyre_guard(res)                                                        \
+  if ((res).ok == NULL)                                                        \
+    return res;
+
 typedef struct {
-  const char *filename;
-  const usize line;
+  char *filename;
+  usize line;
   char *message;
 } Eyre;
 
@@ -38,7 +58,7 @@ typedef struct {
 static inline Eyre eyre_eyre(const char *filename, const usize line,
                              const char *fmt, ...) {
   Eyre err = {
-      .filename = filename,
+      .filename = (char *)filename,
       .line = line,
       .message = (char *)malloc(EYRE_MAX_MESSAGE_LENGTH),
   };
