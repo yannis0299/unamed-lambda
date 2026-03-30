@@ -3,9 +3,6 @@
 #include "arena.h"
 #include "prelude.h"
 
-#define with_arena(var, cap)                                                   \
-  for (var = arena_create(cap); var != NULL; arena_destroy(var), var = NULL)
-
 i32 main() {
   printf("Hello, world!\n");
   Arena *arena;
@@ -14,5 +11,9 @@ i32 main() {
     printf("b.0 = %c \n", bytes[0]);
     arena_deallocate(arena);
   }
+  PtrResult res = {.ok = NULL,
+                   .err = eyre("This is my first eyre from foo! %d", 24)};
+  void *foo;
+  foo = eyre_unpack(res);
   return 0;
 }
