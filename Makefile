@@ -11,7 +11,7 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 CC      := clang-20
 CFLAGS  := $(INC_FLAGS) -MMD -MP
-CFLAGS  += -std=c23 -march=native
+CFLAGS  += -Wall -std=c23 -march=native
 LDFLAGS := 
 
 all: $(EXECUTABLE)

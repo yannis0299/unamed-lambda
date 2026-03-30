@@ -36,24 +36,16 @@ typedef uint16_t u16;
   (eyre_eyre(__FILE__, __LINE__, fmt __VA_OPT__(, ) __VA_ARGS__))
 
 #define eyre_bail(fmt, ...)                                                    \
-  ((PtrResult){.err = eyre(fmt __VA_OPT__(, ) __VA_ARGS__)})
-
-#define eyre_ok(ptr) ((PtrResult){.ok = ptr})
-
-#define eyre_guard(res)                                                        \
-  if ((res).ok == NULL)                                                        \
-    return res;
+  do {                                                                         \
+    Eyre err = eyre(fmt __VA_OPT__(, ) __VA_ARGS__);                           \
+    eyre_panic(err);                                                           \
+  } while (0);
 
 typedef struct {
   char *filename;
   usize line;
   char *message;
 } Eyre;
-
-typedef struct {
-  void *ok;
-  Eyre err;
-} PtrResult;
 
 static inline Eyre eyre_eyre(const char *filename, const usize line,
                              const char *fmt, ...) {
@@ -69,14 +61,9 @@ static inline Eyre eyre_eyre(const char *filename, const usize line,
   return err;
 }
 
-static inline void *eyre_unpack(PtrResult res) {
-  if (res.ok == NULL) {
-    fprintf(stderr, "Eyre: %s:%zu\n\t%s\n", res.err.filename, res.err.line,
-            res.err.message);
-    exit(1);
-  } else {
-    return res.ok;
-  }
+static inline void eyre_panic(Eyre err) {
+  fprintf(stderr, "Eyre: %s:%zu\n\t%s\n", err.filename, err.line, err.message);
+  exit(1);
 }
 
 #endif // PRELUDE_H
