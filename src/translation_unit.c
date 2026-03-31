@@ -24,7 +24,7 @@ TU *tu_create_from_file(Arena *arena, const char *filename) {
 
   while ((amount = fread(chunk, sizeof(char), TU_DEFAULT_CAPACITY, fp))) {
     // Append new chunk to buffer
-    str_append_cstr(tu->contents, (u8 *)chunk, amount);
+    str_push_cstr(tu->contents, (u8 *)chunk, amount);
   }
 
   if (!feof(fp) || ferror(fp)) { // Error reading file

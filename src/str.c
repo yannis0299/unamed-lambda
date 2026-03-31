@@ -23,18 +23,28 @@ Str *str_create_from(Arena *arena, const char *src) {
   str = str_create(arena, len + 1);
   strncpy((char *)str->ptr, src, len);
   str->len += len;
-  str->ptr[str->len++] = '\0';
+  str->ptr[str->len] = '\0';
 
   return str;
 }
 
-void str_append_cstr(Str *str, const u8 *part, usize len) {
-  if (str->len + len + 1 >= str->capacity) {
+void str_resize_if_needed(Str *str, usize hint) {
+  if (str->len + hint >= str->capacity) {
     str->ptr = (u8 *)arena_reallocate(str->arena, str->ptr, str->capacity,
                                       2 * str->capacity);
     str->capacity *= 2;
   }
+}
+
+void str_push(Str *str, char c) {
+  str_resize_if_needed(str, 2);
+  str->ptr[str->len++] = (u8)c;
+  str->ptr[str->len] = '\0';
+}
+
+void str_push_cstr(Str *str, const u8 *part, usize len) {
+  str_resize_if_needed(str, len + 1);
   strncpy((char *)(str->ptr + str->len), (char *)part, len);
   str->len += len;
-  str->ptr[str->len++] = '\0';
+  str->ptr[str->len] = '\0';
 }

@@ -1,5 +1,6 @@
 #include "lexer.h"
 #include "arena.h"
+#include "token.h"
 
 Lexer *lexer_create_from_tu(Arena *arena, TU *tu) {
   Lexer *lexer;
@@ -10,9 +11,7 @@ Lexer *lexer_create_from_tu(Arena *arena, TU *tu) {
   lexer->line = 1;
   lexer->column = 1;
   lexer->pos = 0;
-  lexer->count = 0;
-  lexer->capacity = 1;
-  lexer->tokens = (Token *)arena_allocate(arena, sizeof(Token));
+  lexer->tokens = tokens_create(arena, 1);
 
   return lexer;
 }

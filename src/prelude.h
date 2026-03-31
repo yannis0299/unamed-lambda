@@ -29,6 +29,31 @@ typedef uint16_t u16;
     fflush(stdout);                                                            \
   } while (0);
 
+#define veclike_definition(T)                                                  \
+  Arena *arena;                                                                \
+  T *ptr;                                                                      \
+  usize len, capacity;
+
+#define veclike_create(TS, T, vec)                                             \
+  do {                                                                         \
+    vec = (TS *)arena_allocate(arena, sizeof(TS));                             \
+    vec->arena = arena;                                                        \
+    vec->capacity = capacity ? capacity : 1;                                   \
+    vec->len = 0;                                                              \
+    vec->ptr = (T *)arena_allocate(arena, sizeof(T) * vec->capacity);          \
+  } while (0);
+
+#define veclike_push(TS, T, vec, elem)                                         \
+  do {                                                                         \
+    if (vec->len >= vec->capacity) {                                           \
+      vec->ptr = (T *)arena_reallocate(vec->arena, vec->ptr,                   \
+                                       sizeof(T) * vec->capacity,              \
+                                       sizeof(T) * 2 * vec->capacity);         \
+      vec->capacity *= 2;                                                      \
+    }                                                                          \
+    vec->ptr[vec->len++] = elem;                                               \
+  } while (0);
+
 /* Eyre manipulation */
 #define EYRE_MAX_MESSAGE_LENGTH 2048
 
