@@ -12,13 +12,17 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 CC      := clang-20
 CFLAGS  := $(INC_FLAGS) -MMD -MP
 CFLAGS  += -Wall -std=c23 -march=native
-LDFLAGS := 
+LDFLAGS := -lc
 
-all: $(EXECUTABLE)
+build: $(BUILD_DIR)/$(EXECUTABLE)
 
-$(EXECUTABLE): $(OBJS)
+run: build
+	@$(BUILD_DIR)/$(EXECUTABLE)
+
+# link executable
+$(BUILD_DIR)/$(EXECUTABLE): $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $@ $(LDFLAGS)
-	@chmod +x $(EXECUTABLE)
+	@chmod +x $@
 
 # c source
 $(BUILD_DIR)/%.c.o: %.c
@@ -34,7 +38,6 @@ $(BUILD_DIR)/%.s.o: %.s
 
 clean:
 	$(RM) -r $(BUILD_DIR)
-	$(RM) $(EXECUTABLE)	
 
 -include $(DEPS)
 
