@@ -3,25 +3,24 @@
 #include "arena.h"
 #include "lexer.h"
 #include "prelude.h"
+#include "token.h"
 #include "translation_unit.h"
 
 i32 main() {
-  Arena *arena;
-  TU *tu;
-  Lexer *lexer;
-  Token *token;
+  arena_t arena = arena_new(20 * 1024 * 1024);
+  TU_t tu = tu_new_from_file(&arena, "foo.ln");
+  lexer_t lexer = lexer_new_from_tu(&arena, &tu);
 
-  arena = arena_create(20 * 1024 * 1024);
-  tu = tu_create_from_file(arena, "foo.ln");
-  lexer = lexer_create_from_tu(arena, tu);
-  printf("--- File: %10s ----------\n", tu->filename->ptr);
-  printf("%s", tu->contents->ptr);
+  printf("--- File: %10s ----------\n", tu.filename.raw);
+  printf("%s", tu.contents.raw);
+
   printf("--- Tokens: -------------------\n");
-  while ((token = lexer_next(lexer)) != NULL)
+  token_t *token;
+  while ((token = lexer_next(&lexer)) != NULL)
     printf("toto\n");
 
-  arena_deallocate(arena);
-  arena_destroy(arena);
+  arena_deallocate(&arena);
+  arena_drop(&arena);
 
   return 0;
 }

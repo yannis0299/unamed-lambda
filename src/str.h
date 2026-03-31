@@ -5,17 +5,17 @@
 #include "prelude.h"
 
 typedef struct {
-  Arena *arena;
-  u8 *ptr;
-  usize len, capacity;
-} Str;
+  arena_t *arena;
+  u8 *raw;
+  usize len, cap;
+} str_t;
 
-Str *str_create(Arena *arena, usize capacity);
+str_t str_new(arena_t *arena, usize capacity);
 
-Str *str_create_from(Arena *arena, const char *src);
+str_t str_from(arena_t *arena, const char *src);
 
-void str_push(Str *str, char c);
+void str_push(str_t *self, char c);
 
-void str_push_cstr(Str *str, const u8 *part, usize len);
+void str_push_cstr(str_t *self, const u8 *part, usize len);
 
 #endif // STR_H

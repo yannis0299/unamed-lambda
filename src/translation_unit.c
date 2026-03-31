@@ -1,22 +1,23 @@
 #include "translation_unit.h"
 
 #include "arena.h"
+#include "eyre.h"
 #include "prelude.h"
 #include "str.h"
 
 #include <stdio.h>
 #include <string.h>
 
-TU *tu_create_from_file(Arena *arena, const char *filename) {
-  TU *tu;
+TU_t tu_new_from_file(arena_t *arena, const char *filename) {
   FILE *fp;
   char chunk[TU_DEFAULT_CAPACITY];
   usize amount;
 
-  tu = (TU *)arena_allocate(arena, sizeof(TU));
-  tu->arena = arena;
-  tu->filename = str_create_from(arena, filename);
-  tu->contents = str_create(arena, TU_DEFAULT_CAPACITY);
+  TU_t self = (TU_t){
+      .arena = arena,
+      .filename = str_from(arena, filename),
+      .contents = str_new(arena, TU_DEFAULT_CAPACITY),
+  };
 
   fp = fopen(filename, "r");
   if (fp == NULL)
@@ -24,7 +25,7 @@ TU *tu_create_from_file(Arena *arena, const char *filename) {
 
   while ((amount = fread(chunk, sizeof(char), TU_DEFAULT_CAPACITY, fp))) {
     // Append new chunk to buffer
-    str_push_cstr(tu->contents, (u8 *)chunk, amount);
+    str_push_cstr(&self.contents, (u8 *)chunk, amount);
   }
 
   if (!feof(fp) || ferror(fp)) { // Error reading file
@@ -32,5 +33,5 @@ TU *tu_create_from_file(Arena *arena, const char *filename) {
   }
   fclose(fp);
 
-  return tu;
+  return self;
 }

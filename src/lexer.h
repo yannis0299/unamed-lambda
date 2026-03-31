@@ -7,14 +7,14 @@
 #include "translation_unit.h"
 
 typedef struct {
-  Arena *arena;
-  TU *tu;
+  arena_t *arena;
+  TU_t *tu;
   usize line, column, pos;
-  Tokens *tokens;
-} Lexer;
+  vec_token_t tokens;
+} lexer_t;
 
-Lexer *lexer_create_from_tu(Arena *arena, TU *tu);
+lexer_t lexer_new_from_tu(arena_t *arena, TU_t *tu);
 
-Token *lexer_next(Lexer *tk);
+token_t *lexer_next(lexer_t *self);
 
 #endif // LEXER_H

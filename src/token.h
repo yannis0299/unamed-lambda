@@ -3,6 +3,7 @@
 
 #include "arena.h"
 #include "prelude.h"
+#include "vec.h"
 
 typedef enum {
   TOKENKIND_IDENTIFIER,
@@ -16,20 +17,14 @@ typedef enum {
   TOKENKIND_RIGHT_FATARROW,
   TOKENKIND_EOL,
   TOKENKIND_EOF,
-} TokenKind;
+} tokenkind_t;
 
 typedef struct {
-  TokenKind kind;
+  tokenkind_t kind;
   usize line, column;
   usize start, span;
-} Token;
+} token_t;
 
-typedef struct {
-  veclike_definition(Token)
-} Tokens;
-
-Tokens *tokens_create(Arena *arena, usize capacity);
-
-void tokens_push(Tokens *tokens, Token token);
+define_vec(token_t, token)
 
 #endif // TOKEN_H

@@ -8,11 +8,11 @@
 #define TU_DEFAULT_CAPACITY 1024
 
 typedef struct {
-  Arena *arena;
-  Str *filename;
-  Str *contents;
-} TU;
+  arena_t *arena;
+  str_t filename;
+  str_t contents;
+} TU_t;
 
-TU *tu_create_from_file(Arena *arena, const char *filename);
+TU_t tu_new_from_file(arena_t *arena, const char *filename);
 
 #endif // TU_H

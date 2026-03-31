@@ -6,16 +6,17 @@
 typedef struct {
   u8 *start, *end;
   usize capacity, size;
-} Arena;
+} arena_t;
 
-Arena *arena_create(usize capacity);
+arena_t arena_new(usize capacity);
 
-void arena_destroy(Arena *arena);
+void arena_drop(arena_t *self);
 
-void *arena_allocate(Arena *arena, usize size);
+void *arena_allocate(arena_t *self, usize size);
 
-void *arena_reallocate(Arena *arena, void *ptr, usize old_size, usize new_size);
+void *arena_reallocate(arena_t *self, void *ptr, usize old_size,
+                       usize new_size);
 
-void arena_deallocate(Arena *arena);
+void arena_deallocate(arena_t *self);
 
 #endif // ARENA_H
