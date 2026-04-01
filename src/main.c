@@ -15,11 +15,13 @@ i32 main() {
   printf("%s", tu.contents.raw);
 
   printf("--- Tokens: -------------------\n");
-  token_t *token = lexer_next(&lexer);
-  for (usize acc = 0; acc < 20; acc++) {
-    token_show(token);
+
+  token_t *token = NULL;
+  do {
     token = lexer_next(&lexer);
-  }
+    if (token)
+      token_show(token);
+  } while (token != NULL && token->kind != TOKENKIND_EOF);
 
   arena_deallocate(&arena);
   arena_drop(&arena);
