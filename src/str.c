@@ -25,16 +25,15 @@ str_t str_from(arena_t *arena, const char *src) {
 }
 
 void _str_grow_if_needed(str_t *self) {
-  if (self->len + 1 >= self->cap) {
-    usize old_cap = self->cap;
-    self->cap = self->cap ? 2 * self->cap : 1;
-    self->raw =
-        (u8 *)arena_reallocate(self->arena, self->raw, old_cap, self->cap);
-  }
+  usize old_cap = self->cap;
+  self->cap = self->cap ? 2 * self->cap : 1;
+  self->raw =
+      (u8 *)arena_reallocate(self->arena, self->raw, old_cap, self->cap);
 }
 
 void str_push(str_t *self, char c) {
-  _str_grow_if_needed(self);
+  if (self->len + 1 >= self->cap)
+    _str_grow_if_needed(self);
   self->raw[self->len++] = (u8)c;
   self->raw[self->len] = '\0';
 }

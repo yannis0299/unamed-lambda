@@ -43,7 +43,8 @@ void *arena_reallocate(arena_t *self, void *old_ptr, usize old_size,
   void *new_ptr;
 
   new_ptr = arena_allocate(self, new_size);
-  memcpy(new_ptr, old_ptr, old_size);
+  if (old_ptr != NULL)
+    memcpy(new_ptr, old_ptr, old_size);
 
   return new_ptr;
 }
