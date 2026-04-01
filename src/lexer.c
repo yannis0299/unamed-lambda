@@ -6,6 +6,7 @@
 #include "token.h"
 
 #include <ctype.h>
+#include <stdio.h>
 #include <string.h>
 
 lexer_t lexer_new_from_tu(arena_t *arena, TU_t *tu) {
@@ -100,6 +101,63 @@ usize lexer_integer(lexer_t *self) {
   }
 }
 
+usize lexer_character(lexer_t *self) {
+  lexer_state_t saved_state = self->state;
+  usize span = 0;
+  i32 escaped = 0;
+  char c = lexer_peek_char(self);
+  if (c == '\'') {
+    lexer_next_char(self);
+    // Escape mechanism
+    if ((c = lexer_peek_char(self)) && c == '\\') {
+      escaped = 1;
+      lexer_next_char(self);
+    }
+    // Consume inner character
+    lexer_next_char(self);
+    // Check rightful character terminaison
+    if ((c = lexer_peek_char(self)) && c == '\'') {
+      lexer_next_char(self);
+      return 3 + escaped;
+    } else {
+      self->state = saved_state;
+      return 0;
+    }
+  } else {
+    self->state = saved_state;
+    return 0;
+  }
+}
+
+usize lexer_string(lexer_t *self) {
+  lexer_state_t saved_state = self->state;
+  usize span = 0;
+  char c = lexer_peek_char(self);
+  if (c == '"') {
+    lexer_next_char(self);
+    // Escape mechanism
+    while ((c = lexer_peek_char(self)) && c != '"') {
+      if ((c = lexer_peek_char(self)) && c == '\\') { // Eat escaped character
+        lexer_next_char(self);
+        span++;
+      }
+      // Consume inner character
+      lexer_next_char(self);
+      span++;
+    }
+    c = lexer_next_char(self); // consume terminaison character
+    if (c == '"')
+      return span;
+    else {
+      self->state = saved_state;
+      return 0;
+    }
+  } else {
+    self->state = saved_state;
+    return 0;
+  }
+}
+
 static const char *RESERVED_NAMES[] = {"match", "with", "if",    "then",
                                        "else",  "let",  "where", "do"};
 
@@ -133,8 +191,8 @@ usize lexer_identifier(lexer_t *self) {
   }
 }
 
-static const char *RESERVED_OPERATORS[] = {"\\", "=>", "=", ":",
-                                           "<-", "..", "@", "|"};
+static const char *RESERVED_OPERATORS[] = {"\\", "=>", "=", ":", "<-",
+                                           "..", "@",  "|", "#"};
 
 usize lexer_operator(lexer_t *self) {
   lexer_state_t saved_state = self->state;
@@ -193,8 +251,12 @@ token_t *lexer_next(lexer_t *self) {
     vec_token_push(&self->tokens, token);                                      \
     return &self->tokens.raw[self->tokens.len - 1];                            \
   }
-  // Match integer token
+  // Match integer literal
   LEXER_MATCH(lexer_integer(self), TOKENKIND_INTEGER);
+  // Match character literal
+  LEXER_MATCH(lexer_character(self), TOKENKIND_CHARACTER);
+  // Match string literal
+  LEXER_MATCH(lexer_string(self), TOKENKIND_STRING);
   // Match identifier token
   LEXER_MATCH(lexer_identifier(self), TOKENKIND_IDENTIFIER);
   // Match operator token
@@ -229,6 +291,8 @@ token_t *lexer_next(lexer_t *self) {
   LEXER_MATCH(lexer_single(self, '@'), TOKENKIND_AT);
   // Match vertical bar character
   LEXER_MATCH(lexer_single(self, '|'), TOKENKIND_VERTICAL);
+  // Match hashtag character
+  LEXER_MATCH(lexer_single(self, '#'), TOKENKIND_HASHTAG);
   // Match match keyword token
   LEXER_MATCH(lexer_multiple(self, "match"), TOKENKIND_MATCH);
   // Match with keyword token

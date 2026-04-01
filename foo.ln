@@ -1,3 +1,9 @@
+(#+) : #i32 -> #i32 -> #i32
+
+bar = 'c'
+foo = '\''
+baz = "this is a \"string\"!" 
+
 _ = a b c d e f g h i j k l m n o p q r s t u v w x y z
 
 _ifthenelse t x y = if t then x else y
@@ -18,3 +24,36 @@ main = forever loop
       let x = -10 .. 256
       y <- do_something_monadic x
       ret $ y :: []
+2 + 3
+f 2 3 * g y + 7   (1, 2, 3) a b c d e f
+(1, 2, 3, ,) (,) (,,) (xs) [1, 2, 3, 4 + 5 * 6] ()
+(x + 2 :: [1]) (f . g $ x)
+map (+ 1) [1, 2, 3, 4, 5]
+\x y z => x + y * z
+(\x => 2)
+
+(\x (u,v) y => x y (u, ((v, v))))
+
+(if 2 then \x _ => x else \_ y => y)
+
+(if (if 2 then 3 else 4) then () else ((), ()))
+
+(f x y z) (1, 2, 3, 4) ((), ((f), (x y), ((z))))
+
+() (1, 2)
+
+foo bar 12 34354 -35345 _ _gdfgdf
+
+(1, 2, 3, 4) (1 2) [] [(2, 3), (4, 5)] ((), (()), (),,4)
+
+(if toto then (1, 2, 3) else [4, 5, 6])
+
+\x => (f x, 2, (3, 4), (), [(,,), 5, 0, [10, (20), 30], [,,,], []], 67)
+
+(if \x => x then 3 else 4, 3)
+
+(\[x] => x)
+
+(\(f, (x, y)) => f x y)
+
+()
