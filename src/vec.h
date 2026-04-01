@@ -11,6 +11,11 @@
     T *raw;                                                                    \
   } vec_##name##_t;                                                            \
                                                                                \
+  typedef struct {                                                             \
+    T *ptr;                                                                    \
+    usize len;                                                                 \
+  } span_##name##_t;                                                           \
+                                                                               \
   static inline vec_##name##_t vec_##name##_new(arena_t *arena, usize cap) {   \
     return (vec_##name##_t){                                                   \
         .arena = arena,                                                        \
@@ -35,6 +40,11 @@
                                                                                \
   static inline void vec_##name##_push_unsafe(vec_##name##_t *self, T elem) {  \
     self->raw[self->len++] = elem;                                             \
+  }                                                                            \
+                                                                               \
+  static inline span_##name##_t vec_##name##_slice(vec_##name##_t *self,       \
+                                                   usize start, usize span) {  \
+    return (span_##name##_t){.ptr = &self->raw[start], .len = span};           \
   }
 
 #endif // VEC_H
