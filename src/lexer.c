@@ -1,6 +1,7 @@
 #include "lexer.h"
 
 #include "arena.h"
+#include "eyre.h"
 #include "prelude.h"
 #include "str.h"
 #include "token.h"
@@ -104,21 +105,23 @@ usize lexer_integer(lexer_t *self) {
 usize lexer_character(lexer_t *self) {
   lexer_state_t saved_state = self->state;
   usize span = 0;
-  i32 escaped = 0;
   char c = lexer_peek_char(self);
   if (c == '\'') {
     lexer_next_char(self);
+    span++;
     // Escape mechanism
     if ((c = lexer_peek_char(self)) && c == '\\') {
-      escaped = 1;
       lexer_next_char(self);
+      span++;
     }
     // Consume inner character
     lexer_next_char(self);
+    span++;
     // Check rightful character terminaison
     if ((c = lexer_peek_char(self)) && c == '\'') {
       lexer_next_char(self);
-      return 3 + escaped;
+      span++;
+      return span;
     } else {
       self->state = saved_state;
       return 0;
@@ -229,6 +232,47 @@ usize lexer_operator(lexer_t *self) {
   }
 }
 
+usize lexer_comment(lexer_t *self) {
+  lexer_state_t saved_state = self->state;
+  usize span = 0;
+  char c;
+  if ((c = lexer_peek_char(self)) && c == '{') {
+    lexer_next_char(self);
+    span++;
+    if ((c = lexer_peek_char(self)) && c == ':') {
+      lexer_next_char(self);
+      span++;
+      loop {
+        while ((c = lexer_peek_char(self)) && c != ':') {
+          lexer_next_char(self);
+          span++;
+        }
+        if (c == ':') {
+          lexer_next_char(self);
+          span++;
+          if ((c = lexer_peek_char(self)) && c == '}') {
+            lexer_next_char(self);
+            span++;
+            return span;
+          } else {
+            eyre_bail("lexer: Incorrect comment syntax");
+            return 0;
+          }
+        } else {
+          eyre_bail("lexer: Incorrect comment syntax");
+          return 0;
+        }
+      }
+    } else {
+      self->state = saved_state;
+      return 0;
+    }
+  } else {
+    self->state = saved_state;
+    return 0;
+  }
+}
+
 token_t *lexer_next(lexer_t *self) {
   // Eat whitespaces prefixing characters
   char c;
@@ -251,6 +295,8 @@ token_t *lexer_next(lexer_t *self) {
     vec_token_push(&self->tokens, token);                                      \
     return &self->tokens.raw[self->tokens.len - 1];                            \
   }
+  // Match comment for pragma purposes
+  LEXER_MATCH(lexer_comment(self), TOKENKIND_COMMENT);
   // Match integer literal
   LEXER_MATCH(lexer_integer(self), TOKENKIND_INTEGER);
   // Match character literal
@@ -310,5 +356,7 @@ token_t *lexer_next(lexer_t *self) {
   // Match do keyword token
   LEXER_MATCH(lexer_multiple(self, "do"), TOKENKIND_DO);
   // If nothing is matched
+  eyre_bail("lexer: Could not match any token at %zu:%zu", state.line,
+            state.column);
   return NULL;
 }

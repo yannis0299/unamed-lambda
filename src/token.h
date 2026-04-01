@@ -7,6 +7,7 @@
 #include "vec.h"
 
 typedef enum {
+  TOKENKIND_COMMENT,
   TOKENKIND_INTEGER,
   TOKENKIND_IDENTIFIER,
   TOKENKIND_CHARACTER,
@@ -40,6 +41,7 @@ typedef enum {
 } tokenkind_t;
 
 static const char *TOKENKIND_SHOW_TABLE[TOKENKIND_MAX_KIND] = {
+    "TOKENKIND_COMMENT",
     "TOKENKIND_INTEGER",
     "TOKENKIND_IDENTIFIER",
     "TOKENKIND_CHARACTER",
