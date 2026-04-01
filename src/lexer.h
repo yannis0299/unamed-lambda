@@ -19,6 +19,10 @@ typedef struct {
 
 lexer_t lexer_new_from_tu(arena_t *arena, TU_t *tu);
 
+char lexer_peek_char(lexer_t *self);
+
+char lexer_next_char(lexer_t *self);
+
 token_t *lexer_next(lexer_t *self);
 
 #endif // LEXER_H

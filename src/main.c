@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <stdio.h>
 
 #include "arena.h"
@@ -15,6 +16,15 @@ i32 main() {
   printf("%s", tu.contents.raw);
 
   printf("--- Tokens: -------------------\n");
+
+  /* token_t *token = NULL; */
+  /* for (usize acc = 0; acc < 148; acc++) { */
+  /*   token = lexer_next(&lexer); */
+  /*   if (token != NULL) */
+  /*     token_show(token); */
+  /*   else */
+  /*     printf("Token { null } \n"); */
+  /* } */
 
   token_t *token = NULL;
   do {

@@ -67,6 +67,39 @@ usize lexer_multiple(lexer_t *self, const char *e) {
   return len;
 }
 
+usize lexer_integer(lexer_t *self) {
+  lexer_state_t saved_state = self->state;
+  usize span = 0;
+  char c = lexer_peek_char(self);
+  if (c == '-') {
+    lexer_next_char(self);
+    c = lexer_peek_char(self);
+    if (isdigit(c)) {
+      span = 2;
+      lexer_next_char(self);
+      while ((c = lexer_peek_char(self)) && isdigit(c)) {
+        lexer_next_char(self);
+        span++;
+      }
+      return span;
+    } else {
+      self->state = saved_state;
+      return 0;
+    }
+  } else if (isdigit(c)) {
+    span = 1;
+    lexer_next_char(self);
+    while ((c = lexer_peek_char(self)) && isdigit(c)) {
+      lexer_next_char(self);
+      span++;
+    }
+    return span;
+  } else {
+    self->state = saved_state;
+    return 0;
+  }
+}
+
 static const char *RESERVED_NAMES[] = {"match", "with", "if",    "then",
                                        "else",  "let",  "where", "do"};
 
@@ -87,7 +120,8 @@ usize lexer_identifier(lexer_t *self) {
     char *repr = (char *)self->tu->contents.raw + saved_state.pos;
     usize len = sizeof(RESERVED_NAMES) / sizeof(RESERVED_NAMES[0]);
     for (usize idx = 0; idx < len; idx++) {
-      if (strncmp(repr, RESERVED_NAMES[idx], span) == 0) {
+      if ((strlen(RESERVED_NAMES[idx]) == span) &&
+          strncmp(repr, RESERVED_NAMES[idx], span) == 0) {
         self->state = saved_state;
         return 0;
       }
@@ -124,7 +158,8 @@ usize lexer_operator(lexer_t *self) {
     char *repr = (char *)self->tu->contents.raw + saved_state.pos;
     usize len = sizeof(RESERVED_OPERATORS) / sizeof(RESERVED_OPERATORS[0]);
     for (usize idx = 0; idx < len; idx++) {
-      if (strncmp(repr, RESERVED_OPERATORS[idx], span) == 0) {
+      if ((strlen(RESERVED_OPERATORS[idx]) == span) &&
+          strncmp(repr, RESERVED_OPERATORS[idx], span) == 0) {
         self->state = saved_state;
         return 0;
       }
@@ -158,7 +193,8 @@ token_t *lexer_next(lexer_t *self) {
     vec_token_push(&self->tokens, token);                                      \
     return &self->tokens.raw[self->tokens.len - 1];                            \
   }
-
+  // Match integer token
+  LEXER_MATCH(lexer_integer(self), TOKENKIND_INTEGER);
   // Match identifier token
   LEXER_MATCH(lexer_identifier(self), TOKENKIND_IDENTIFIER);
   // Match operator token
@@ -173,14 +209,42 @@ token_t *lexer_next(lexer_t *self) {
   LEXER_MATCH(lexer_single(self, '('), TOKENKIND_LEFT_PAREN);
   // Match right paren character
   LEXER_MATCH(lexer_single(self, ')'), TOKENKIND_RIGHT_PAREN);
+  // Match left bracket character
+  LEXER_MATCH(lexer_single(self, '['), TOKENKIND_LEFT_BRACKET);
+  // Match right bracket character
+  LEXER_MATCH(lexer_single(self, ']'), TOKENKIND_RIGHT_BRACKET);
   // Match comma character
   LEXER_MATCH(lexer_single(self, ','), TOKENKIND_COMMA);
-  // Match right fat-arrow
+  // Match right fat-arrow keyword
   LEXER_MATCH(lexer_multiple(self, "=>"), TOKENKIND_RIGHT_FATARROW);
   // Match equal character
   LEXER_MATCH(lexer_single(self, '='), TOKENKIND_EQUAL);
   // Match colon character
   LEXER_MATCH(lexer_single(self, ':'), TOKENKIND_COLON);
+  // Match left arrow keyword
+  LEXER_MATCH(lexer_multiple(self, "<-"), TOKENKIND_LEFT_ARROW);
+  // Match .. keyword
+  LEXER_MATCH(lexer_multiple(self, ".."), TOKENKIND_DOTDOT);
+  // Match at character
+  LEXER_MATCH(lexer_single(self, '@'), TOKENKIND_AT);
+  // Match vertical bar character
+  LEXER_MATCH(lexer_single(self, '|'), TOKENKIND_VERTICAL);
+  // Match match keyword token
+  LEXER_MATCH(lexer_multiple(self, "match"), TOKENKIND_MATCH);
+  // Match with keyword token
+  LEXER_MATCH(lexer_multiple(self, "with"), TOKENKIND_WITH);
+  // Match if keyword token
+  LEXER_MATCH(lexer_multiple(self, "if"), TOKENKIND_IF);
+  // Match then keyword token
+  LEXER_MATCH(lexer_multiple(self, "then"), TOKENKIND_THEN);
+  // Match else keyword token
+  LEXER_MATCH(lexer_multiple(self, "else"), TOKENKIND_ELSE);
+  // Match where keyword token
+  LEXER_MATCH(lexer_multiple(self, "where"), TOKENKIND_WHERE);
+  // Match let keyword token
+  LEXER_MATCH(lexer_multiple(self, "let"), TOKENKIND_LET);
+  // Match do keyword token
+  LEXER_MATCH(lexer_multiple(self, "do"), TOKENKIND_DO);
   // If nothing is matched
   return NULL;
 }
