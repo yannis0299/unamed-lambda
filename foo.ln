@@ -3,6 +3,8 @@ foo = '\''
 baz = "this is a \"string\"!" 
 
 {: this is a pragma or a comment :}
+
+{: infix(left, 5) :}
 (#+) : #i32 -> #i32 -> i32
 
 _ = a b c d e f g h i j k l m n o p q r s t u v w x y z
