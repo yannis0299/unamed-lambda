@@ -7,7 +7,6 @@
 #include "token.h"
 
 #include <ctype.h>
-#include <stdio.h>
 #include <string.h>
 
 lexer_t lexer_new_from_tu(arena_t *arena, TU_t *tu) {
@@ -359,4 +358,11 @@ token_t *lexer_next(lexer_t *self) {
   eyre_bail("lexer: Could not match any token at %zu:%zu", state.line,
             state.column);
   return NULL;
+}
+
+void lexer_exhaust(lexer_t *self) {
+  token_t *token = NULL;
+  do {
+    token = lexer_next(self);
+  } while (token != NULL && token->kind != TOKENKIND_EOF);
 }

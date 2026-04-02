@@ -14,7 +14,7 @@
   typedef struct {                                                             \
     T *ptr;                                                                    \
     usize len;                                                                 \
-  } span_##name##_t;                                                           \
+  } slice_##name##_t;                                                          \
                                                                                \
   static inline vec_##name##_t vec_##name##_new(arena_t *arena, usize cap) {   \
     return (vec_##name##_t){                                                   \
@@ -42,9 +42,32 @@
     self->raw[self->len++] = elem;                                             \
   }                                                                            \
                                                                                \
-  static inline span_##name##_t vec_##name##_slice(vec_##name##_t *self,       \
-                                                   usize start, usize span) {  \
-    return (span_##name##_t){.ptr = &self->raw[start], .len = span};           \
+  static inline slice_##name##_t vec_##name##_slice(vec_##name##_t *self,      \
+                                                    usize start, usize len) {  \
+    return (slice_##name##_t){.ptr = &self->raw[start], .len = len};           \
+  }                                                                            \
+                                                                               \
+  static inline slice_##name##_t vec_##name##_as_slice(vec_##name##_t *self) { \
+    return (slice_##name##_t){.ptr = self->raw, .len = self->len};             \
+  }                                                                            \
+                                                                               \
+  static inline T *vec_##name##_last(vec_##name##_t *self) {                   \
+    return (self->len) ? (self->raw + self->len - 1) : NULL;                   \
+  }                                                                            \
+                                                                               \
+  static inline void printf_vec_##name(vec_##name##_t *self) {                 \
+    printf("[\n");                                                             \
+    for (usize idx = 0; idx < self->len - 1; idx++) {                          \
+      printf("  ");                                                            \
+      printf_##name(self->raw + idx);                                          \
+      printf(",\n");                                                           \
+    }                                                                          \
+    if (self->len > 0) {                                                       \
+      printf("  ");                                                            \
+      printf_##name(self->raw + self->len - 1);                                \
+      printf("\n");                                                            \
+    }                                                                          \
+    printf("]\n");                                                             \
   }
 
 #endif // VEC_H

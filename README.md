@@ -25,4 +25,11 @@ type Result : #0 -> #0 -> #0
 -}
 {: infix(right, 0) :}
 ($) = \f x => f x
+
+use Prelude (Semigroup, Monoid, Functor, Applicative, Monad)
+
+{: derive(Show, Eq) :}
+type Tree a =
+    | Leaf
+    | Node a (Tree a) (Tree a)
 ```

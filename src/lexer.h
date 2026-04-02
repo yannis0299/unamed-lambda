@@ -25,4 +25,6 @@ char lexer_next_char(lexer_t *self);
 
 token_t *lexer_next(lexer_t *self);
 
+void lexer_exhaust(lexer_t *self);
+
 #endif // LEXER_H

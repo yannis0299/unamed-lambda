@@ -80,14 +80,14 @@ typedef struct {
   str_t repr;
 } token_t;
 
-define_vec(token_t, token);
-
-static inline void token_show(token_t *self) {
+static inline void printf_token(token_t *self) {
   printf("Token { .kind = %s, .line = %zu, .column = %zu, .start = %zu, "
-         ".span = %zu, .repr = \"%s\" }\n",
+         ".span = %zu, .repr = \"%s\" }",
          TOKENKIND_SHOW_TABLE[self->kind], self->line, self->column,
          self->start, self->span,
          (self->kind != TOKENKIND_EOL) ? ((char *)self->repr.raw) : "\\n");
 }
+
+define_vec(token_t, token);
 
 #endif // TOKEN_H
